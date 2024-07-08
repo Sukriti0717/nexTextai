@@ -4,8 +4,8 @@ nlp = spacy.load("en_core_web_sm")
 
 def check_errors(text):
     doc = nlp(text)
-    corrections = []
+    errors = []
     for token in doc:
-        if token._.is_oov:
-            corrections.append((token.text, token._.suggestions))
-    return corrections
+        if token.is_alpha and not token.is_stop and token.is_oov:  # Use `token.is_oov` directly
+            errors.append(f"Possible error at '{token.text}'")
+    return {"text": text, "corrections": errors}
