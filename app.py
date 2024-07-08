@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from intelligent_text_completion import generate_text
+from intelligent_text_completion import complete_text
 from contextual_phrase_suggestions import suggest_phrases
 from error_detection_correction import check_errors
 from higher_level_writing_support import summarize_text
@@ -13,7 +13,7 @@ def index():
 @app.route('/complete', methods=['POST'])
 def complete():
     prompt = request.json['prompt']
-    completion = generate_text(prompt)
+    completion = complete_text(prompt)
     return jsonify({'text': completion})
 
 @app.route('/suggest', methods=['POST'])
