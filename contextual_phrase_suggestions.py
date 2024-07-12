@@ -1,27 +1,26 @@
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
-model_name = 'gpt2'
-tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-model = GPT2LMHeadModel.from_pretrained(model_name)
+MODEL_NAME = 'gpt2'
+MAX_LENGTH = 50
+NUM_SUGGESTIONS = 3
 
-def suggest_phrases(prompt, max_length=50, num_suggestions=5):
-    inputs = tokenizer(prompt, return_tensors='pt')
-    if num_suggestions > 1:
-        # Use beam search to get multiple suggestions
-        outputs = model.generate(
-            inputs.input_ids,
-            max_length=max_length,
-            num_return_sequences=num_suggestions,
-            num_beams=num_suggestions,
-            early_stopping=True
-        )
-    else:
-        # Use greedy decoding for a single suggestion
-        outputs = model.generate(
-            inputs.input_ids,
-            max_length=max_length,
-            num_return_sequences=num_suggestions
-        )
+tokenizer = GPT2Tokenizer.from_pretrained(MODEL_NAME)
+model = GPT2LMHeadModel.from_pretrained(MODEL_NAME)
+
+def suggest_phrases(prompt, num_suggestions=NUM_SUGGESTIONS):
+    input_text = tokenizer(prompt, return_tensors='pt')
+    
+    outputs = model.generate(
+        input_text.input_ids,
+        max_length=MAX_LENGTH,
+        num_return_sequences=num_suggestions,
+        num_beams=5,
+        temperature=0.7,  
+        top_k=50,         
+        top_p=0.95,       
+        early_stopping=True,
+        pad_token_id=tokenizer.eos_token_id
+    )
     
     suggestions = [tokenizer.decode(output, skip_special_tokens=True) for output in outputs]
     return suggestions
