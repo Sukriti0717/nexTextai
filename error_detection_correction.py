@@ -1,11 +1,19 @@
-import spacy
+import language_tool_python
 
-nlp = spacy.load("en_core_web_sm")
+def grammarChecker(text):
+    tool = language_tool_python.LanguageTool('en-US')
+    result = tool.check(text)
+    return result
 
 def check_errors(text):
-    doc = nlp(text)
     errors = []
-    for token in doc:
-        if token.is_alpha and not token.is_stop and token.is_oov:  # Use `token.is_oov` directly
-            errors.append(f"Possible error at '{token.text}'")
+    grammar_errors = grammarChecker(text)
+    for error in grammar_errors:
+        error_detail = (
+            f"Error: {error.message}"
+            f"Context: {error.context}"
+            f"Position: {error.offsetInContext}"
+            f"Suggestions: {' , '.join(error.replacements)}"
+        )
+        errors.append(error_detail)
     return {"text": text, "corrections": errors}
